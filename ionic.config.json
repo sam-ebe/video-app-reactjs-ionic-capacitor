@@ -1,0 +1,7 @@
+{
+  "name": "video-app-reactjs-ionic-capacitor",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
