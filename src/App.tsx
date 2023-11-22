@@ -10,10 +10,10 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { ellipse, square, triangle } from "ionicons/icons";
-import Tab1 from "./pages/Tab1";
-import Tab2 from "./pages/Tab2";
-import Tab3 from "./pages/Tab3";
+import * as icons from "ionicons/icons";
+import Home from "./pages/Home";
+import Search from "./pages/Search";
+import Soon from "./pages/Soon";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -33,44 +33,86 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
+import Downloads from "./pages/Downloads";
+import Favorites from "./pages/Favorites";
+import { useState } from "react";
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/tab1">
-            <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/tab1" />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const tabs = [
+    {
+      name: "Home",
+      url: "/home",
+      activeIcon: icons.home,
+      icon: icons.homeOutline,
+      component: Home,
+    },
+    {
+      name: "Search",
+      url: "/search",
+      activeIcon: icons.search,
+      icon: icons.searchOutline,
+      component: Search,
+    },
+    {
+      name: "Soon",
+      url: "/soon",
+      activeIcon: icons.arrowForwardCircle,
+      icon: icons.arrowForwardCircleOutline,
+      component: Soon,
+    },
+    {
+      name: "Downloads",
+      url: "/downloads",
+      activeIcon: icons.download,
+      icon: icons.downloadOutline,
+      component: Downloads,
+    },
+    {
+      name: "Favorites",
+      url: "/favorites",
+      activeIcon: icons.heart,
+      icon: icons.heartOutline,
+      component: Favorites,
+    },
+  ];
+
+  const [activeTab, setActiveTab] = useState(tabs[0].name);
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs onIonTabsDidChange={(e) => setActiveTab(e.detail.tab)}>
+          <IonRouterOutlet>
+            {tabs.map((tab, index) => {
+              return (
+                <Route key={index} exact path={tab.url}>
+                  <tab.component />
+                </Route>
+              );
+            })}
+            <Route exact path="/">
+              <Redirect to="/home" />
+            </Route>
+          </IonRouterOutlet>
+          <IonTabBar slot="bottom">
+            {tabs.map((tab, index) => {
+              const active = tab.name === activeTab;
+              return (
+                <IonTabButton key={index} tab={tab.name} href={tab.url}>
+                  <IonIcon
+                    aria-hidden="true"
+                    icon={active ? tab.activeIcon : tab.icon}
+                  />
+                  <IonLabel>{tab.name}</IonLabel>
+                </IonTabButton>
+              );
+            })}
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
