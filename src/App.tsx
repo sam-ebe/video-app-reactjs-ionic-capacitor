@@ -13,7 +13,7 @@ import { IonReactRouter } from "@ionic/react-router";
 import * as icons from "ionicons/icons";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
-import Soon from "./pages/Soon";
+import Upcoming from "./pages/Upcoming";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -37,9 +37,13 @@ import Downloads from "./pages/Downloads";
 import Favorites from "./pages/Favorites";
 import { useState } from "react";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 setupIonicReact();
 
 const App: React.FC = () => {
+  const queryClient = new QueryClient();
+
   const tabs = [
     {
       name: "Home",
@@ -56,11 +60,11 @@ const App: React.FC = () => {
       component: Search,
     },
     {
-      name: "Soon",
-      url: "/soon",
+      name: "Upcoming",
+      url: "/upcoming",
       activeIcon: icons.arrowForwardCircle,
       icon: icons.arrowForwardCircleOutline,
-      component: Soon,
+      component: Upcoming,
     },
     {
       name: "Downloads",
@@ -81,36 +85,38 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   return (
     <IonApp>
-      <IonReactRouter>
-        <IonTabs onIonTabsDidChange={(e) => setActiveTab(e.detail.tab)}>
-          <IonRouterOutlet>
-            {tabs.map((tab, index) => {
-              return (
-                <Route key={index} exact path={tab.url}>
-                  <tab.component />
-                </Route>
-              );
-            })}
-            <Route exact path="/">
-              <Redirect to="/home" />
-            </Route>
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom">
-            {tabs.map((tab, index) => {
-              const active = tab.name === activeTab;
-              return (
-                <IonTabButton key={index} tab={tab.name} href={tab.url}>
-                  <IonIcon
-                    aria-hidden="true"
-                    icon={active ? tab.activeIcon : tab.icon}
-                  />
-                  <IonLabel>{tab.name}</IonLabel>
-                </IonTabButton>
-              );
-            })}
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
+      <QueryClientProvider client={queryClient}>
+        <IonReactRouter>
+          <IonTabs onIonTabsDidChange={(e) => setActiveTab(e.detail.tab)}>
+            <IonRouterOutlet>
+              {tabs.map((tab, index) => {
+                return (
+                  <Route key={index} exact path={tab.url}>
+                    <tab.component />
+                  </Route>
+                );
+              })}
+              <Route exact path="/">
+                <Redirect to="/home" />
+              </Route>
+            </IonRouterOutlet>
+            <IonTabBar slot="bottom">
+              {tabs.map((tab, index) => {
+                const active = tab.name === activeTab;
+                return (
+                  <IonTabButton key={index} tab={tab.name} href={tab.url}>
+                    <IonIcon
+                      aria-hidden="true"
+                      icon={active ? tab.activeIcon : tab.icon}
+                    />
+                    <IonLabel>{tab.name}</IonLabel>
+                  </IonTabButton>
+                );
+              })}
+            </IonTabBar>
+          </IonTabs>
+        </IonReactRouter>
+      </QueryClientProvider>
     </IonApp>
   );
 };
