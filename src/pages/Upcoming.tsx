@@ -16,6 +16,7 @@ import { getUpcomingMovies } from "./../api/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import MovieCard from "./../components/MovieCard";
 import type { Movie } from "./../components/MovieCard";
+import { Virtuoso } from "react-virtuoso";
 
 const Upcoming: React.FC = () => {
   const {
@@ -30,16 +31,13 @@ const Upcoming: React.FC = () => {
     queryFn: ({ pageParam }) => getUpcomingMovies(pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      console.log("lastPage.data");
-      console.log(lastPage.data);
-      console.log("lastPage.data.page");
-      console.log(lastPage.data.page);
-
       let customHasNextPage = lastPage.data.page < lastPage.data.total_pages;
       return customHasNextPage ? lastPage.data.page + 1 : undefined;
     },
   });
   console.log(result);
+
+  const flattenedData = result.data?.pages.flatMap((page) => page.data.results);
 
   return (
     <IonPage>
@@ -60,7 +58,7 @@ const Upcoming: React.FC = () => {
         ) : result.status === "error" ? (
           <span>Error: {result.error.message}</span>
         ) : (
-          <>
+          /* <>
             {result.data.pages.map((page) => (
               <React.Fragment key={page.data.pages}>
                 {page.data.results.map((movie: Movie) => (
@@ -68,7 +66,19 @@ const Upcoming: React.FC = () => {
                 ))}
               </React.Fragment>
             ))}
-          </>
+            </>*/
+          <Virtuoso
+            data={flattenedData}
+            endReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            //overscan={200}
+            itemContent={(index, movie: Movie) => {
+              return <MovieCard movie={movie} />;
+            }}
+          />
         )}
       </IonContent>
     </IonPage>

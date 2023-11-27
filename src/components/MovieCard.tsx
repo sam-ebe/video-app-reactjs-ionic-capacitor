@@ -32,13 +32,14 @@ interface MovieCardProps {
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie: movie }) => {
   const posterBaseUrl = "https://image.tmdb.org/t/p/w500";
-  const unavailablePoster = "./../assets/unavailableImage.png";
+  const unavailablePoster = "assets/unavailableImage.png";
+  console.log();
   return (
     <IonCard key={movie.id}>
       <img
         src={
           movie.poster_path
-            ? `${posterBaseUrl}/${movie.poster_path}`
+            ? `${posterBaseUrl}${movie.poster_path}`
             : unavailablePoster
         }
         alt="The Wisconsin State Capitol building in Madison, WI at night"
