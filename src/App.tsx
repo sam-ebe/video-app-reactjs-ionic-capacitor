@@ -1,12 +1,23 @@
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
+  IonButtons,
+  IonContent,
+  IonHeader,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
+  IonMenu,
+  IonMenuButton,
+  IonMenuToggle,
   IonRouterOutlet,
+  IonSplitPane,
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonTitle,
+  IonToolbar,
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
@@ -35,15 +46,17 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import Downloads from "./pages/Downloads";
 import Favorites from "./pages/Favorites";
+
 import { useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useMediaQuery } from "usehooks-ts";
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
-
+  const isWideScreen = useMediaQuery("(min-width: 992px)");
   const tabs = [
     {
       name: "Home",
@@ -81,40 +94,75 @@ const App: React.FC = () => {
       component: Favorites,
     },
   ];
-
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   return (
     <IonApp>
       <QueryClientProvider client={queryClient}>
         <IonReactRouter>
-          <IonTabs onIonTabsDidChange={(e) => setActiveTab(e.detail.tab)}>
-            <IonRouterOutlet>
-              {tabs.map((tab, index) => {
-                return (
+          {isWideScreen ? (
+            // IonSplitPane for wide screens
+            <IonSplitPane contentId="main">
+              <IonMenu side="start" contentId="main">
+                <IonHeader>
+                  <IonToolbar color="tertiary">
+                    <IonTitle>Menu</IonTitle>
+                  </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                  <IonList>
+                    {tabs.map((tab, index) => (
+                      <IonMenuToggle key={index} autoHide={false}>
+                        <IonItem
+                          button
+                          routerLink={tab.url}
+                          routerDirection="none"
+                        >
+                          <IonIcon slot="start" icon={tab.icon} />
+                          <IonLabel>{tab.name}</IonLabel>
+                        </IonItem>
+                      </IonMenuToggle>
+                    ))}
+                  </IonList>
+                </IonContent>
+              </IonMenu>
+              <IonRouterOutlet id="main">
+                {tabs.map((tab, index) => (
                   <Route key={index} exact path={tab.url}>
                     <tab.component />
                   </Route>
-                );
-              })}
-              <Route exact path="/">
-                <Redirect to="/home" />
-              </Route>
-            </IonRouterOutlet>
-            <IonTabBar slot="bottom">
-              {tabs.map((tab, index) => {
-                const active = tab.name === activeTab;
-                return (
+                ))}
+                <Route exact path="/">
+                  <Redirect to="/home" />
+                </Route>
+              </IonRouterOutlet>
+            </IonSplitPane>
+          ) : (
+            // IonTabs for small screens
+            <IonTabs onIonTabsDidChange={(e) => setActiveTab(e.detail.tab)}>
+              <IonRouterOutlet>
+                {tabs.map((tab, index) => (
+                  <Route key={index} exact path={tab.url}>
+                    <tab.component />
+                  </Route>
+                ))}
+                <Route exact path="/">
+                  <Redirect to="/home" />
+                </Route>
+              </IonRouterOutlet>
+
+              <IonTabBar slot="bottom">
+                {tabs.map((tab, index) => (
                   <IonTabButton key={index} tab={tab.name} href={tab.url}>
                     <IonIcon
                       aria-hidden="true"
-                      icon={active ? tab.activeIcon : tab.icon}
+                      icon={tab.name === activeTab ? tab.activeIcon : tab.icon}
                     />
                     <IonLabel>{tab.name}</IonLabel>
                   </IonTabButton>
-                );
-              })}
-            </IonTabBar>
-          </IonTabs>
+                ))}
+              </IonTabBar>
+            </IonTabs>
+          )}
         </IonReactRouter>
       </QueryClientProvider>
     </IonApp>
